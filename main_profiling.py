@@ -2,7 +2,6 @@ import os
 import time
 from copy import deepcopy
 import random
-from matplotlib import pyplot as plt
 from torchvision.transforms import transforms
 import numpy as np
 import torch
