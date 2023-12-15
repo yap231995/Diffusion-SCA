@@ -52,12 +52,73 @@ class Custom_Dataset(Dataset):
                 if leakage == 'HW':
                     self.Y_profiling = np.array(calculate_HW(self.Y_profiling))
                     self.Y_attack = np.array(calculate_HW(self.Y_attack))
-        elif dataset == 'Chipwhisperer':
-            data_root = 'Dataset/Chipwhisperer/'
+		elif dataset == 'Chipwhisperer':
+            data_root = 'Dataset/Chipwhisperer'
             (self.X_profiling, self.X_attack), (self.Y_profiling, self.Y_attack), (self.plt_profiling, self.plt_attack), self.correct_key = load_chipwhisperer(root + data_root + '/', leakage_model=leakage)
-            self.masking_profiling = [self.Y_profiling,]
-            self.masking_attack = [self.Y_attack,]
             self.order = 0
+        elif dataset == 'Chipwhisperer_AE':
+            data_root = 'Chipwhisperer_AE'
+            path_dataset = 'Result_CW/Chipwhisperer_ID/latent_space/latent_dataset/'
+            self.X_profiling =np.load(path_dataset + "X_latent_profiling.npy")
+            self.X_attack = np.load(path_dataset + "X_latent_attack.npy")
+            self.plt_profiling = np.load(path_dataset + "plt_profiling.npy")
+            self.plt_attack = np.load(path_dataset + "plt_attack.npy")
+            self.Y_profiling = np.load(path_dataset + "Y_profiling.npy")
+            self.Y_attack = np.load(path_dataset + "Y_attack.npy")
+            self.correct_key = np.load(path_dataset + "correct_key.npy")
+            self.order = 0
+        elif dataset == "ASCAD":
+            byte = 2
+            data_root = 'Dataset/ASCAD/ASCAD.h5'
+            (self.X_profiling, self.X_attack), (self.Y_profiling, self.Y_attack), (self.plt_profiling, self.plt_attack), self.correct_key = load_ascad(
+                root + data_root, leakage_model=leakage, byte=byte, train_begin=0, train_end=45000, test_begin=0,
+                test_end=5000)
+            self.X_profiling_orig = self.X_profiling
+            self.X_attack_orig = self.X_attack
+            self.X_profiling = np.pad(self.X_profiling, ((0, 0), (2, 2)), 'constant', constant_values=(0, 0))
+            self.X_attack = np.pad(self.X_attack, ((0, 0), (2, 2)), 'constant', constant_values=(0, 0))
+            self.order = 1
+        elif dataset == "ASCAD_variable":
+            byte = 2
+            data_root = 'Dataset/ASCAD/ASCAD_variable.h5'
+            (self.X_profiling, self.X_attack), (self.Y_profiling, self.Y_attack), (self.plt_profiling, self.plt_attack), self.correct_key = load_ascad_variable(
+                root + data_root, leakage_model=leakage, byte=byte, train_begin=0, train_end=45000, test_begin=0,
+                test_end=5000)
+            self.X_profiling_orig = self.X_profiling
+            self.X_attack_orig = self.X_attack
+            self.X_profiling = np.pad(self.X_profiling, ((0, 0), (2, 2)), 'constant', constant_values=(0, 0))
+            self.X_attack = np.pad(self.X_attack, ((0, 0), (2, 2)), 'constant', constant_values=(0, 0))
+            self.order = 1
+        elif dataset == 'ASCAD_AE':
+            data_root = 'ASCAD_AE'
+            if AE_path != None:
+                path_dataset = AE_path 
+                print("dataset path: ", path_dataset)
+            else:
+                path_dataset = 'Result_ASCADf/ASCAD_ID/latent_space/latent_dataset/'
+            self.X_profiling =np.load(path_dataset + "X_latent_profiling.npy")
+            self.X_attack = np.load(path_dataset + "X_latent_attack.npy")
+            self.plt_profiling = np.load(path_dataset + "plt_profiling.npy")
+            self.plt_attack = np.load(path_dataset + "plt_attack.npy")
+            self.Y_profiling = np.load(path_dataset + "Y_profiling.npy")
+            self.Y_attack = np.load(path_dataset + "Y_attack.npy")
+            self.correct_key = np.load(path_dataset + "correct_key.npy")
+            self.order = 1	
+        elif dataset == 'ASCAD_variable_AE':
+            data_root = 'ASCAD_variable_AE'
+            if AE_path != None:
+                path_dataset = AE_path 
+                print("dataset path: ", path_dataset)
+            else:
+                path_dataset = 'Result_ASCADr/ASCAD_variable_ID/latent_space/latent_dataset/'
+            self.X_profiling =np.load(path_dataset + "X_latent_profiling.npy")
+            self.X_attack = np.load(path_dataset + "X_latent_attack.npy")
+            self.plt_profiling = np.load(path_dataset + "plt_profiling.npy")
+            self.plt_attack = np.load(path_dataset + "plt_attack.npy")
+            self.Y_profiling = np.load(path_dataset + "Y_profiling.npy")
+            self.Y_attack = np.load(path_dataset + "Y_attack.npy")
+            self.correct_key = np.load(path_dataset + "correct_key.npy")
+            self.order = 1
     def apply_MinMaxScaler(self):
         self.X_profiling = self.scaler.fit_transform(self.X_profiling)
         self.X_attack = self.scaler.transform(self.X_attack)
@@ -66,28 +127,45 @@ class Custom_Dataset(Dataset):
 
 
     def choose_phase(self,phase):
-        if phase == 'train_label':
-            self.X, self.Y, self.Plaintext = np.expand_dims(self.X_profiling, 1), self.Y_profiling, self.Y_profiling
-            # elif phase == 'validation':
-            #     self.X, self.Y, self.Plaintext = np.expand_dims(self.X_profiling_val, 1), self.Y_profiling_val
-        elif phase == 'test_label':
-            self.X, self.Y, self.Plaintext = np.expand_dims(self.X_attack, 1), self.Y_attack, self.Y_attack
-
-        elif phase == 'train_more_shares':
-
-            self.X, self.Y= np.expand_dims(self.X_profiling, 1), self.Y_profiling,
-            print("self.X: ", self.X.shape)
-            print("self.Y: ", self.Y.shape)
-            all_mask = np.zeros((self.Y.shape[0], self.order+1))
-            for share in range(self.order + 1):
-                all_mask[:, share] = self.masking_profiling[share]
-            # all_mask[:, self.order] = self.plt_profiling #This doesn't work for order 2 and order 3.
-            self.Plaintext = all_mask #In training, we use self.Plaintext as the conditional labels.
-
+        if phase == 'train':
+            self.X, self.Y, self.Plaintext = np.expand_dims(self.X_profiling, 1), self.Y_profiling, self.plt_profiling
+        elif phase == 'test':
+            self.X, self.Y, self.Plaintext =np.expand_dims(self.X_attack, 1), self.Y_attack, self.plt_attack
         elif phase == 'train_latent':
             self.X, self.Y, self.Plaintext = np.expand_dims(self.latent_traces_profiling, 1), self.Y_profiling, self.plt_profiling
         elif phase == 'test_latent':
             self.X, self.Y, self.Plaintext = np.expand_dims(self.latent_traces_attack, 1), self.Y_attack, self.plt_attack
+        elif phase == 'train_label':
+            self.X, self.Y, self.Plaintext = np.expand_dims(self.X_profiling, 1), self.Y_profiling, self.Y_profiling
+        elif phase == 'test_label':
+            self.X, self.Y, self.Plaintext = np.expand_dims(self.X_attack, 1), self.Y_attack, self.Y_attack
+        if phase == 'train_plaintext':
+            self.X, self.Y, self.Plaintext = np.expand_dims(self.X_profiling, 1), self.Y_profiling, self.plt_profiling
+        elif phase == 'test_plaintext':
+            self.X, self.Y, self.Plaintext =np.expand_dims(self.X_attack, 1), self.Y_attack, self.plt_attack			
+        elif phase == 'train_more_shares':
+            self.X, self.Y= np.expand_dims(self.X_profiling, 1), self.Y_profiling,
+            print("self.X: ", self.X.shape)
+            print("self.Y: ", self.Y.shape)
+            if self.dataset == "AES_HD_ext_plaintext":
+                self.Plaintext = np.concatenate([np.expand_dims(self.plt_profiling[:,15], 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
+            elif self.dataset == "AES_HD_ext_sbox":
+                sbox_inv_label = np.zeros(self.plt_profiling.shape[0])
+                print("sbox_inv_label.shape: ", sbox_inv_label.shape)
+                for i in range(self.plt_profiling.shape[0]):
+                    sbox_inv_label[i] = AES_Sbox_inv[self.plt_profiling[i, 15] ^ self.correct_key]
+                self.Plaintext = np.concatenate([np.expand_dims(sbox_inv_label, 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
+            elif self.dataset == "AES_HD_ext_label":
+                self.Plaintext = np.concatenate([np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
+            elif self.dataset == "AES_HD_ext" or self.dataset == "AES_HD_ext_AE":
+                self.Plaintext = np.concatenate([np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
+            elif self.dataset == "ASCAD" or self.dataset == "ASCAD_variable" or self.dataset == "ASCAD_AE" or self.dataset == "ASCAD_variable_AE":
+                self.Plaintext = np.concatenate([np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:,1],1)], axis = 1)
+            else:
+                all_mask = np.zeros((self.Y.shape[0], self.order+1))
+                for share in range(self.order + 1):
+                    all_mask[:, share] = self.masking_profiling[share]
+                self.Plaintext = all_mask 
 
     def __len__(self):
         return len(self.X)
