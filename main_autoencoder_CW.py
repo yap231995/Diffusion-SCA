@@ -12,7 +12,7 @@ from src.dataloader import ToTensor_trace, Custom_Dataset
 from src.gaussian_diffusion import GaussianDiffusion1D
 from src.net import Unet1D
 from src.train import train, train_ae, train_vae
-from src.utils import aes_label_cpa, cpa_method, unison_shuffled_copies, aes_label_cpa_AES_HD
+from src.utils import aes_label_cpa, cpa_method
 
 dataset = "Chipwhisperer" 
 leakage = "ID"
