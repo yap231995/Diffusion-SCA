@@ -147,19 +147,7 @@ class Custom_Dataset(Dataset):
             self.X, self.Y= np.expand_dims(self.X_profiling, 1), self.Y_profiling,
             print("self.X: ", self.X.shape)
             print("self.Y: ", self.Y.shape)
-            if self.dataset == "AES_HD_ext_plaintext":
-                self.Plaintext = np.concatenate([np.expand_dims(self.plt_profiling[:,15], 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
-            elif self.dataset == "AES_HD_ext_sbox":
-                sbox_inv_label = np.zeros(self.plt_profiling.shape[0])
-                print("sbox_inv_label.shape: ", sbox_inv_label.shape)
-                for i in range(self.plt_profiling.shape[0]):
-                    sbox_inv_label[i] = AES_Sbox_inv[self.plt_profiling[i, 15] ^ self.correct_key]
-                self.Plaintext = np.concatenate([np.expand_dims(sbox_inv_label, 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
-            elif self.dataset == "AES_HD_ext_label":
-                self.Plaintext = np.concatenate([np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
-            elif self.dataset == "AES_HD_ext" or self.dataset == "AES_HD_ext_AE":
-                self.Plaintext = np.concatenate([np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:,11],1)], axis = 1)
-            elif self.dataset == "ASCAD" or self.dataset == "ASCAD_variable" or self.dataset == "ASCAD_AE" or self.dataset == "ASCAD_variable_AE":
+            if self.dataset == "ASCAD" or self.dataset == "ASCAD_variable" or self.dataset == "ASCAD_AE" or self.dataset == "ASCAD_variable_AE":
                 self.Plaintext = np.concatenate([np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:,1],1)], axis = 1)
             else:
                 all_mask = np.zeros((self.Y.shape[0], self.order+1))
