@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from src.utils import load_chipwhisperer, generate_traces, calculate_HW, load_ascad
+from src.utils import load_chipwhisperer, generate_traces, calculate_HW, load_latent_dataset, load_ascad, load_ascad_variable
 import torch
 from sklearn.decomposition import PCA
 
