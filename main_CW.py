@@ -118,9 +118,9 @@ std_latent = np.std(latent_X_profiling, axis=0)
 
 import pickle 
 
-with open(path_dataset + 'params_v2.pkl', 'rb') as fp:
+with open(path_dataset + 'params_' + dataset + "_" + leakage+ '.pkl', 'rb') as fp:
     std = pickle.load(fp)
-    print('the parameter:')
+    print('the dict:')
     print(std)
 
 embedding_size = latent_X_profiling.shape[1]
@@ -306,6 +306,7 @@ with torch.no_grad():
             ae = Autoencoder(trace_size_original, embedding_size, dims)
             ae.load_state_dict(torch.load(save_root.replace("latent_", "")+"latent_space/latent_dataset/" + "ae_trained.pth", map_location=torch.device("cpu")))
             new_traces = ae.decode(torch.from_numpy(new_latent_traces).float()).detach()
+            new_traces = new_traces.cpu().numpy()
  
             for x2 in range(new_traces.shape[2]):
 
@@ -333,8 +334,7 @@ if print_traces == True:
     fig_gen, ax_gen = plt.subplots(figsize=(15, 7))
     new_traces = new_traces.squeeze(1)
     x_axis = [i for i in range( new_traces.shape[1])]
-    print("new_traces:", new_traces.shape)
-    print("new_traces:", new_traces)
+
     for i, trace in enumerate(new_traces[:300,:]):
         ax_gen.plot(x_axis, trace)
 
@@ -342,17 +342,14 @@ if print_traces == True:
     ax_gen.set_ylabel('Voltage', fontsize=20)
     for label in (ax_gen.get_xticklabels() + ax_gen.get_yticklabels()):
         label.set_fontsize(15)
-    plt.savefig(image_root + 'Generated_traces_' + dataset + "_" + leakage+"_epochs_"+str(epochs) + "_batch_" + str(batch_size) + "_more_shares.png")
+    plt.savefig(image_root + 'Generated_traces_' + dataset + "_" + leakage+"_epochs_"+str(epochs) + "_batch_" + str(batch_size) + "_cw.png")
 
     if decoder == True:
         trace_num_sample_latent = embedding_size
-        print("trace_num_sample_latent:",trace_num_sample_latent)
-        print("new_latent_traces:", new_latent_traces)
         fig_new_latent, ax_new_latent = plt.subplots(figsize=(15, 7))
         x_axis = [i for i in range(trace_num_sample_latent)]
         new_latent_traces = new_latent_traces.squeeze(1)
 
-        print("new_latent_traces:", new_latent_traces.shape)
         for i, trace in enumerate(new_latent_traces[:100,:]):
 
             ax_new_latent.plot(x_axis, trace)
@@ -361,16 +358,16 @@ if print_traces == True:
         ax_new_latent.set_ylabel('Voltage', fontsize=20)
         for label in (ax_gen.get_xticklabels() + ax_gen.get_yticklabels()):
             label.set_fontsize(15)
-        # plt.show()
-        plt.savefig(image_root + 'Latent_generated_traces_' + dataset + "_" + leakage + "_epochs_" + str(epochs) + "_batch_" + str(batch_size) + "_more_shares.png")
+
+        plt.savefig(image_root + 'Latent_generated_traces_' + dataset + "_" + leakage + "_epochs_" + str(epochs) + "_batch_" + str(batch_size) + "_cws.png")
     plt.cla()
 
 if cal_cpa == True:
     fig, ax = plt.subplots(figsize=(15, 7))
-    print(new_traces.shape)
+
     if print_traces == False:
         new_traces = new_traces.squeeze(1)
-    new_label_mask = new_masks[:, 0]
+    new_label_mask = new_masks
     
     total_samplept = new_traces.shape[1]
     total_num_gen_trace = new_traces.shape[0]
@@ -382,7 +379,7 @@ if cal_cpa == True:
         
         x_axis = [i for i in range(total_samplept)]
         ax.plot(x_axis, cpa_k, c="grey")
-    label_correct_key = aes_label_cpa(new_label_mask, dataloadertrain.correct_key, leakage, new_masks, order = masking_order)
+    label_correct_key = aes_label_cpa(new_label_mask, dataloadertrain.correct_key, leakage)
     cpa_k = cpa_method(total_samplept, total_num_gen_trace, label_correct_key, new_traces)
     x_axis = [i for i in range(total_samplept)]
     ax.plot(x_axis, cpa_k, c="red")
@@ -399,5 +396,5 @@ if cal_cpa == True:
                 ax.plot(x_axis, cpa_k_m, c="green")
             elif shares == 2:
                 ax.plot(x_axis, cpa_k_m, c="orange")
-    plt.savefig(image_root + 'CPA_generated_' + dataset + "_" + leakage + "_epochs_" + str(epochs) + "_batch_" + str(batch_size) + "_more_shares.png")
+    plt.savefig(image_root + 'CPA_generated_' + dataset + "_" + leakage + "_epochs_" + str(epochs) + "_batch_" + str(batch_size) + "_cw.png")
     plt.show()
