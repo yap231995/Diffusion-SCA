@@ -116,7 +116,7 @@ std_latent = np.std(latent_X_profiling, axis=0)
 
 import pickle 
 
-with open(path_dataset + 'params_ascad_variable.pkl', 'rb') as fp:
+with open(path_dataset + 'params_' + dataset + "_" + leakage+ '.pkl', 'rb') as fp:
     std = pickle.load(fp)
     print('the parameter:')
     print(std)
