@@ -159,7 +159,7 @@ elif dataset == "simulated_traces_order_3":
     masking_order = 3
 model_path = save_root+dataset+"_"+leakage+"_epochs_"+str(epochs) +"_more_shares"
 
-timestamp = 1000#4000
+timestamp = 4000
 print("timestamp:", timestamp)
 
 model = Unet1D(
