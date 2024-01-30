@@ -20,9 +20,10 @@ leakage = "ID"
 
 dataset2 = dataset + "_AE"
 
-batch_size = 50
-epochs = 500 # number of epochs depends on latent embedding size, do trial and error
-lr = 0.005
+# these are the parameters for diffusion
+batch_size = 150 
+epochs = 150 # number of epochs depends on latent embedding size, do trial and error
+lr = 0.0001
 
 print_orig_cpa = True
 training_diffusion = True
@@ -77,26 +78,6 @@ label_profiling = np.load(path_dataset + "Y_profiling.npy")
 label_attack = np.load(path_dataset + "Y_attack.npy")
 correct_key = np.load(path_dataset + "correct_key.npy")
 
-dataloadertrain_X = Custom_Dataset(root = root, dataset = dataset, leakage = leakage, transform =  transforms.Compose([ ToTensor_trace() ]))
-
-fig_gen, ax_gen = plt.subplots(figsize=(15, 7))
-x_axis = [i for i in range(dataloadertrain_X.X_profiling.shape[1])]
-fig_old_latent, ax_old_latent = plt.subplots(figsize=(15, 7))
-for i, trace in enumerate(dataloadertrain_X.X_profiling[:100,:]):
-
-    ax_old_latent.plot(x_axis, trace)
-
-ax_old_latent.set_xlabel('Sample points', fontsize=20)
-ax_old_latent.set_ylabel('Voltage', fontsize=20)
-        
-for label in (ax_gen.get_xticklabels() + ax_gen.get_yticklabels()):
-    label.set_fontsize(15)
-    # plt.show()
-plt.savefig(image_root2 + 'original_traces_' + dataset2 + "_" + leakage+ ".png")
-
-mean_trace = np.mean(dataloadertrain_X.X_profiling, axis=0)
-std_trace = np.std(dataloadertrain_X.X_profiling, axis=0)
-
 
 fig_gen, ax_gen = plt.subplots(figsize=(15, 7))
 x_axis = [i for i in range(latent_X_profiling.shape[1])]
@@ -111,7 +92,7 @@ ax_old_latent.set_ylabel('Voltage', fontsize=20)
 for label in (ax_gen.get_xticklabels() + ax_gen.get_yticklabels()):
     label.set_fontsize(15)
     # plt.show()
-plt.savefig(image_root2 + 'Latent_original_traces_' + dataset2 + "_" + leakage+ ".png")
+plt.savefig(image_root2 + 'Latent_original_traces_' + dataset2 + "_" + leakage+ "_w.png")
 
 mean_latent = np.mean(latent_X_profiling, axis=0)
 std_latent = np.std(latent_X_profiling, axis=0)
@@ -136,7 +117,7 @@ decoder = True
 
 dataloadertrain = Custom_Dataset(root = root, dataset = dataset2, leakage = leakage,embedding_size = embedding_size, transform =  transforms.Compose([ ToTensor_trace() ]))
 
-dataloadertrain.choose_phase("train") # generate plaintext instead of label
+dataloadertrain.choose_phase("train_plaintext")  # generate plaintext instead of intermediate value
 
 num_workers = 0
 
@@ -157,11 +138,11 @@ elif dataset == "simulated_traces_order_2":
     masking_order = 2
 elif dataset == "simulated_traces_order_3":
     masking_order = 3
-model_path = save_root+dataset+"_"+leakage+"_epochs_"+str(epochs) +"_more_shares"
+
+model_path = save_root2+dataset2+"_"+leakage+"_epochs_"+str(epochs)+"_w"
+print(model_path)
 
 timestamp = 4000
-print("timestamp:", timestamp)
-
 model = Unet1D(
     dim = 64,
     dim_mults = (1, 2, 4, 8),
@@ -179,7 +160,7 @@ diffusion = GaussianDiffusion1D(
     device,
     seq_length = trace_size,
     timesteps = timestamp,
-    objective = 'pred_v'
+    objective = 'pred_noise'
 )
 
 
@@ -187,10 +168,11 @@ if training_diffusion == True:
     from datetime import datetime
     now = datetime.now()
     dt_string = now.strftime("_%d_%m_%Y_%Hh%Mm%Ss_")
-    tensorboard_root = save_root + 'tensorboard_log' + dt_string +'/'
+    tensorboard_root = save_root2 + 'tensorboard_log' + dt_string +'/'
     if not os.path.exists(tensorboard_root):
         os.mkdir(tensorboard_root)
     ema_model,ema = train(dataloaders,diffusion,device,lr, epochs,dataset, save_model_root=model_path)
+
 else:
     ema_model.load_state_dict(torch.load(model_path+"_ema.pth", map_location=torch.device(device)))
     model.load_state_dict(torch.load(model_path+"_original.pth", map_location=torch.device(device)))
@@ -201,7 +183,7 @@ with torch.no_grad():
         device,
         seq_length = trace_size,
         timesteps = timestamp,
-        objective = 'pred_v'
+        objective = 'pred_noise'
     )
 
     new_traces = []
@@ -275,60 +257,43 @@ with torch.no_grad():
 
                 num_new_plaintext += step
             new_latent_traces = collect_all_latent_traces
-
             for x2 in range(new_latent_traces.shape[2]):
+
                 mean_latent_new = np.mean(new_latent_traces[:,0,x2])
                 std_latent_new = np.std(new_latent_traces[:,0,x2])
                 a_shift = std_latent[x2]/std_latent_new
                 b_shift =  mean_latent[x2] - a_shift* mean_latent_new
+
                 for x1 in range(new_latent_traces.shape[0]):
                     new_latent_traces[x1,0,x2] = a_shift * new_latent_traces[x1,0,x2] + b_shift
-
+            print("mean and std (reconstructed) latent")
             x_mean = np.zeros(new_latent_traces.shape[2])
             x_std = np.zeros(new_latent_traces.shape[2])
             for x1 in range(new_latent_traces.shape[2]):
                 x_mean[x1] = np.mean(new_latent_traces[:,0,x1])
                 x_std[x1] = np.std(new_latent_traces[:,0,x1])
-        np.save(new_traces_root + "diffusion_latent_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_cw.npy",
+        np.save(new_traces_root2 + "diffusion_latent_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_w.npy",
                 new_latent_traces)
-        np.save(new_traces_root + "diffusion_labels_masks_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_cw.npy",
+        np.save(new_traces_root2 + "diffusion_labels_masks_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_w.npy",
                 new_masks)
     else:
-        new_latent_traces = np.load(new_traces_root + "diffusion_latent_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_cw.npy",)
-        new_masks = np.load(new_traces_root + "diffusion_labels_masks_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_cw.npy" )
-    print("new_traces: ", new_latent_traces.shape)
+        new_latent_traces = np.load(new_traces_root2 + "diffusion_latent_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_w.npy",)
+        new_masks = np.load(new_traces_root2 + "diffusion_labels_masks_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_w.npy" )
 
     if decoder == False:
         new_traces = new_latent_traces
     elif decoder == True:
         save_ae_new_traces = True
         if save_ae_new_traces == True:
+            
             ae = Autoencoder(trace_size_original, embedding_size, dims)
             ae.load_state_dict(torch.load(save_root.replace("latent_", "")+"latent_space/latent_dataset/" + "ae_trained.pth", map_location=torch.device("cpu")))
             new_traces = ae.decode(torch.from_numpy(new_latent_traces).float()).detach()
             new_traces = new_traces.cpu().numpy()
- 
-            for x2 in range(new_traces.shape[2]):
 
-                mean_new = np.mean(new_traces[:,0,x2])
-                std_new = np.std(new_traces[:,0,x2])
-                if std_new>0:
-                    a_shift = std_trace[x2]/std_new
-                else:
-                    a_shift = 1
-                b_shift =  mean_trace[x2] - a_shift* mean_new
-                for x1 in range(new_traces.shape[0]):
-                    new_traces[x1,0,x2] = a_shift * new_traces[x1,0,x2] + b_shift
-            print("mean and std (reconstructed) trace")
-            x_mean = np.zeros(new_traces.shape[2])
-            x_std = np.zeros(new_traces.shape[2])
-            for x1 in range(new_traces.shape[2]):
-                x_mean[x1] = np.mean(new_traces[:,0,x1])
-                x_std[x1] = np.std(new_traces[:,0,x1])
-
-            np.save(new_traces_root + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_cw.npy",new_traces)
+            np.save(new_traces_root2 + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_w.npy",new_traces)
         else:
-            new_traces = np.load(new_traces_root + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_cw.npy" )
+            new_traces = np.load(new_traces_root2 + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_w.npy" )
 
 if print_traces == True:
     fig_gen, ax_gen = plt.subplots(figsize=(15, 7))
@@ -342,7 +307,7 @@ if print_traces == True:
     ax_gen.set_ylabel('Voltage', fontsize=20)
     for label in (ax_gen.get_xticklabels() + ax_gen.get_yticklabels()):
         label.set_fontsize(15)
-    plt.savefig(image_root + 'Generated_traces_' + dataset + "_" + leakage+"_epochs_"+str(epochs) + "_batch_" + str(batch_size) + "_cw.png")
+    plt.savefig(image_root2 + 'Generated_traces_' + dataset + "_" + leakage+"_epochs_"+str(epochs) + "_batch_" + str(batch_size) + "_w.png")
 
     if decoder == True:
         trace_num_sample_latent = embedding_size
@@ -359,7 +324,7 @@ if print_traces == True:
         for label in (ax_gen.get_xticklabels() + ax_gen.get_yticklabels()):
             label.set_fontsize(15)
 
-        plt.savefig(image_root + 'Latent_generated_traces_' + dataset + "_" + leakage + "_epochs_" + str(epochs) + "_batch_" + str(batch_size) + "_cws.png")
+        plt.savefig(image_root2 + 'Latent_generated_traces_' + dataset + "_" + leakage + "_epochs_" + str(epochs) + "_batch_" + str(batch_size) + "_w.png")
     plt.cla()
 
 if cal_cpa == True:
