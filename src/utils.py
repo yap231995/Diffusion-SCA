@@ -207,6 +207,19 @@ def aes_label_cpa_AES_HD(plt, correct_key, leakage):
             labels_for_snr[i] = AES_Sbox_inv[correct_key[15] ^ int(plt[i, 15])] ^ plt[i, 11]
     return labels_for_snr
 
+def aes_label_cpa_ascad(plt, correct_key, leakage):
+    num_traces = plt.shape[0]
+    labels_for_snr = np.zeros(num_traces)
+    for i in range(num_traces):
+        
+        if leakage == 'HW':
+            labels_for_snr[i] = HW(AES_Sbox[plt[i,0] ^ correct_key]^plt[i,1]) 
+        elif leakage == 'ID':
+            labels_for_snr[i] = AES_Sbox[plt[i,0] ^ correct_key]^plt[i,1]
+            
+    return labels_for_snr
+
+
 def cpa_method(total_samplept, number_of_traces, label, traces):
     if total_samplept == 1:
         cpa = np.zeros(total_samplept)
