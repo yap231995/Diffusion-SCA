@@ -117,11 +117,11 @@ class Custom_Dataset(Dataset):
             self.order = 1
         elif dataset == 'ASCAD_variable_AE':
             data_root = 'ASCAD_variable_AE'
-            if AE_path != None:
-                path_dataset = AE_path
-                print("dataset path: ", path_dataset)
-            else:
-                path_dataset = 'Result_ASCADr/ASCAD_variable_ID/latent_space/latent_dataset/'
+            # if AE_path != None:
+            #     path_dataset = AE_path
+            #     print("dataset path: ", path_dataset)
+            # else:
+            path_dataset = 'Result_ASCADr/ASCAD_variable_ID/latent_space/latent_dataset/'
             self.X_profiling = np.load(path_dataset + "X_latent_profiling.npy")
             self.X_attack = np.load(path_dataset + "X_latent_attack.npy")
             self.plt_profiling = np.load(path_dataset + "plt_profiling.npy")

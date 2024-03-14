@@ -8,6 +8,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
+from src.autoencoder import Autoencoder
 from src.dataloader import ToTensor_trace, Custom_Dataset
 from src.gaussian_diffusion import GaussianDiffusion1D
 from src.net import Unet1D, Unet1D_more_shares
@@ -233,14 +234,14 @@ with torch.no_grad():
         new_traces = new_latent_traces
     elif decoder == True:
         save_ae_new_traces = True
-        # if save_ae_new_traces == True:
-        #     ae = Autoencoder(trace_size_original, embedding_size, dims)
-        #     ae.load_state_dict(torch.load(save_root.replace("latent_", "")+"latent_space/" + "ae_trained.pth", map_location=torch.device("cpu")))
-        #     new_traces = ae.decode(torch.from_numpy(new_latent_traces).float()).detach()
-        #     np.save(new_traces_root + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_more_shares.npy",new_traces)
-        # else:
-        new_traces = np.load(new_traces_root + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(
-            epochs) + "_more_shares.npy")
+        if save_ae_new_traces == True:
+            ae = Autoencoder(trace_size_original, embedding_size, dims)
+            ae.load_state_dict(torch.load(save_root.replace("latent_", "")+"latent_space/" + "ae_trained.pth", map_location=torch.device("cpu")))
+            new_traces = ae.decode(torch.from_numpy(new_latent_traces).float()).detach()
+            np.save(new_traces_root + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(epochs) + "_more_shares.npy",new_traces)
+        else:
+            new_traces = np.load(new_traces_root + "diffusion_new_traces_epochs_" + dataset + "_" + leakage + "_" + str(
+                epochs) + "_more_shares.npy")
 
 if print_traces == True:
     fig_gen, ax_gen = plt.subplots(figsize=(15, 7))
