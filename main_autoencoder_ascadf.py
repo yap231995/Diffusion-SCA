@@ -24,7 +24,7 @@ print_ae_traces = True
 create_dataset = True
 root = './'
 
-save_root = root + 'Result_ASCADf/' + dataset + '_' + leakage + "_" + metric + '/'
+save_root = root + 'Result/' + dataset + '_' + leakage + "_" + metric +'_ae'+ '/'
 image_root = save_root + 'image/'
 latent_space_root = save_root + 'latent_space/'
 new_traces_root = save_root + 'new_traces/'
