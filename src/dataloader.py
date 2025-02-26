@@ -164,7 +164,7 @@ class Custom_Dataset(Dataset):
             if self.dataset == "ASCAD" or self.dataset == "ASCAD_variable" or self.dataset == "ASCAD_AE" or self.dataset == "ASCAD_variable_AE":
                 print("self.plt_profiling", self.plt_profiling, self.plt_profiling.shape)
                 self.Plaintext = np.concatenate(
-                    [np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:, 1], 1)], axis=1)
+                    [np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling, 1)], axis=1)
             else:
                 all_mask = np.zeros((self.Y.shape[0], self.order + 1))
                 for share in range(self.order + 1):
