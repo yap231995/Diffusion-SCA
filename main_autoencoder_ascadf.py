@@ -17,7 +17,7 @@ from torch import nn
 
 dataset = "ASCAD"
 leakage = "ID"
-metric = "mse"
+metric = "correlation"
 train_ae_bool = True
 cal_ae_cpa = True
 print_ae_traces = True
