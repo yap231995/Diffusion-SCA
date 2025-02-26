@@ -11,6 +11,7 @@ from sklearn.decomposition import PCA
 
 class Custom_Dataset(Dataset):
     def __init__(self, root='./', dataset="Chipwhisperer", leakage="HW", transform=None, embedding_size=None):
+        self.dataset = dataset
         if dataset == 'simulated_traces_order_0' or dataset == 'simulated_traces_order_1' or dataset == 'simulated_traces_order_2' or dataset == 'simulated_traces_order_3':
             data_root = './Dataset/' + dataset + '/'
             if not os.path.exists(data_root):
