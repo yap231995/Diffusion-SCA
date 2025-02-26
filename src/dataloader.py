@@ -162,6 +162,7 @@ class Custom_Dataset(Dataset):
             print("self.X: ", self.X.shape)
             print("self.Y: ", self.Y.shape)
             if self.dataset == "ASCAD" or self.dataset == "ASCAD_variable" or self.dataset == "ASCAD_AE" or self.dataset == "ASCAD_variable_AE":
+                print("self.plt_profiling", self.plt_profiling, self.plt_profiling.shape)
                 self.Plaintext = np.concatenate(
                     [np.expand_dims(self.Y_profiling, 1), np.expand_dims(self.plt_profiling[:, 1], 1)], axis=1)
             else:
