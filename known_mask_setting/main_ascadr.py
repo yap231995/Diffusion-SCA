@@ -65,7 +65,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 
 path_dataset = latent_space_root + "latent_dataset" + "/"
