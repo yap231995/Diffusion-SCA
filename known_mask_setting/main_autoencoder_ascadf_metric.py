@@ -349,7 +349,7 @@ for r_xp in range(rep):
                     traces2 = reconstructed_traces2[:used_d, :]
                     print("Dimension original and reconstructed traces:")
                     print([traces1.shape, traces2.shape])
-                    print("best_lost:", best_lost)
+                    print("best_loss:", best_loss)
     print([r_xp, time.time() - start_time])
     print("")
     plt.clf()
