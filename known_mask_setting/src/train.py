@@ -56,7 +56,7 @@ def train_ae(dataloaders,ae, epochs_ae, device, lr_ae,  latent_space_root, kl_we
     #writer_ae = SummaryWriter(latent_space_root + "ae_training/")
     optimizer = torch.optim.Adam(ae.parameters(), lr=lr_ae)
     criterion = nn.MSELoss()#nn.BCELoss(reduction = "sum") #nn.MSELoss()
-    epochs_ae = 1
+    # epochs_ae = 1
     for epoch in range(epochs_ae):
         print(f"Starting epoch {epoch}:")
         pbar = tqdm(dataloader, disable=True)

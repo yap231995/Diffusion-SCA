@@ -62,7 +62,6 @@ best_corr = -1
 best_loss = float("inf")
 
 import time
-rep = 2
 for r_xp in range(rep):
     print("Number of Autoencoder trained: {}/{}".format(r_xp+1, rep))
     # parameter to check
