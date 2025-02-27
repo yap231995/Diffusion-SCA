@@ -142,7 +142,7 @@ for r_xp in range(rep):
         from sklearn.metrics import mean_squared_error
 
         print("mse:", mse)
-        print("sklearn_mse:", mean_squared_error(traces1, traces2))
+        print("sklearn_mse:", mean_squared_error(traces1.numpy(), traces2.numpy()))
         print(ok)
     if r_xp == 0:
         fig, ax = plt.subplots(figsize=(15, 7))
