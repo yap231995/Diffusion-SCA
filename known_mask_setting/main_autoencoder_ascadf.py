@@ -135,9 +135,9 @@ for r_xp in range(rep):
 
     mse_loss_fn = nn.MSELoss()
     if traces1.shape[-1] == traces2.shape[-1]:
-        trace1 = torch.from_numpy(traces1).float().squeeze(1)
-        mse = mse_loss_fn(trace1, traces2)
-        print("traces1:", trace1.shape)
+        traces1 = torch.from_numpy(traces1).float().squeeze(1)
+        mse = mse_loss_fn(traces1, traces2)
+        print("traces1:", traces1.shape)
         print("traces2:", traces2.shape)
         from sklearn.metrics import mean_squared_error
 
