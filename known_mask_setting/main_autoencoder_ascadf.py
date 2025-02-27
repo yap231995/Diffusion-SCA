@@ -132,6 +132,8 @@ for r_xp in range(rep):
     reconstructed_traces2 = reconstructed_traces.squeeze(1)
     traces1 = dataloadertrain.X[:used_d, :]
     traces2 = reconstructed_traces2[:used_d, :]
+    print("traces1:", traces1)
+    print("traces2:", traces2)
     mse_loss_fn = nn.MSELoss()
     if traces1.shape[-1] == traces2.shape[-1]:
         mse = mse_loss_fn(traces1, traces2)
