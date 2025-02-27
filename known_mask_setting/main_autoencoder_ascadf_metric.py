@@ -295,10 +295,9 @@ for r_xp in range(rep):
                 # print("traces2:", traces2.shape)
                 print("mse:", mse)
                 if mse < best_loss:
-                    best_lost = copy.deepcopy(mse)
+                    best_loss = copy.deepcopy(mse)
                     best_cpa_corr = np.max(cpa_k[idxx])
                     best_ge = np.where(id_k == dataloadertrain.correct_key)[0][0]
-                    best_trace_corr = copy.deepcopy(corr_traces)
 
                     best_idx = copy.deepcopy(r_xp)
                     best_dim = copy.deepcopy(dims)
@@ -369,7 +368,10 @@ print("Best learning rate: {:.11f} ".format(best_param[2]))
 print("Best embedding size: {:d} ".format(int(best_param[3])))
 print("Max (abs) CPA: {:.2f} ".format(best_cpa_corr))
 print("Best GE: {:d} ".format(best_ge))
-print("Max (abs) traces correlation: {:.2f} ".format(best_trace_corr))
+if metric == "correlation":
+    print("Max (abs) traces correlation: {:.2f} ".format(best_trace_corr))
+elif metric == "mse":
+    print("Best MSE: {:.11f} ".format(best_loss))
 
 best_params = dict(dims=best_dim, batch_size=best_param[0], epoch_size=best_param[1], learn_rate=best_param[2],
                    embedding_size=best_param[3], max_cpa=best_corr, key_rank=best_ge)
