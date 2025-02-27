@@ -64,7 +64,7 @@ best_loss = float("inf")
 import time
 rep = 2
 for r_xp in range(rep):
-    print("Number of Autoencoder trained: {}/{}".format(r_xp, rep))
+    print("Number of Autoencoder trained: {}/{}".format(r_xp+1, rep))
     # parameter to check
     dim_len_entr = random.randrange(2, 6 + 1)
     batch_entr = random.randrange(64, 2048 + 1, 32)
@@ -335,8 +335,8 @@ for r_xp in range(rep):
                     torch.save(ae.state_dict(), path_dataset + "ae_trained.pth")
 
                     best_params_tmp = dict(dims=best_dim, batch_size=best_param[0], epoch_size=best_param[1],
-                                           learn_rate=best_param[2], embedding_size=best_param[3], max_cpa=best_corr,
-                                           key_rank=best_ge)
+                                           learn_rate=best_param[2], embedding_size=best_param[3], loss= best_loss,
+                                           key_rank=best_ge, )
 
                     import pickle
 
@@ -350,8 +350,8 @@ for r_xp in range(rep):
                     print("Dimension original and reconstructed traces:")
                     print([traces1.shape, traces2.shape])
                     print("best_loss:", best_loss)
-    print([r_xp, time.time() - start_time])
-    print("")
+    print("[index, elapse_time]:", [r_xp, time.time() - start_time])
+    print("======================================================================")
     plt.clf()
     plt.cla()
     plt.close()
@@ -370,11 +370,13 @@ print("Max (abs) CPA: {:.2f} ".format(best_cpa_corr))
 print("Best GE: {:d} ".format(best_ge))
 if metric == "correlation":
     print("Max (abs) traces correlation: {:.2f} ".format(best_trace_corr))
+    best_params = dict(dims=best_dim, batch_size=best_param[0], epoch_size=best_param[1], learn_rate=best_param[2],
+                       embedding_size=best_param[3], max_cpa=best_corr, key_rank=best_ge)
 elif metric == "mse":
     print("Best MSE: {:.11f} ".format(best_loss))
 
-best_params = dict(dims=best_dim, batch_size=best_param[0], epoch_size=best_param[1], learn_rate=best_param[2],
-                   embedding_size=best_param[3], max_cpa=best_corr, key_rank=best_ge)
+    best_params = dict(dims=best_dim, batch_size=best_param[0], epoch_size=best_param[1], learn_rate=best_param[2],
+                       embedding_size=best_param[3], key_rank=best_ge, loss=best_loss)
 
 import pickle
 
