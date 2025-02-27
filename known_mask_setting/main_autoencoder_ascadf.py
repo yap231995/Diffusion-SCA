@@ -45,7 +45,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 dataloadertrain = Custom_Dataset(root=root, dataset=dataset, leakage=leakage,
                                  transform=transforms.Compose([ToTensor_trace()]))
@@ -103,18 +103,18 @@ for r_xp in range(rep):
 
     trace_num_sample = copy.deepcopy(trace_size_original)
 
-    if r_xp == 0:
-        fig, ax = plt.subplots(figsize=(15, 7))
-        x_axis = [i for i in range(trace_num_sample)]
-        for i, trace in enumerate(dataloadertrain.X[:100, :]):
-            trace = trace.squeeze(0)
-            ax.plot(x_axis, trace)
-
-        ax.set_xlabel('Sample points', fontsize=20)
-        ax.set_ylabel('Voltage', fontsize=20)
-        for label in (ax.get_xticklabels() + ax.get_yticklabels()):
-            label.set_fontsize(15)
-        plt.savefig(image_root + 'Orig_traces_' + dataset + "_" + leakage + "_ascadf.png")
+    # if r_xp == 0:
+    #     fig, ax = plt.subplots(figsize=(15, 7))
+    #     x_axis = [i for i in range(trace_num_sample)]
+    #     for i, trace in enumerate(dataloadertrain.X[:100, :]):
+    #         trace = trace.squeeze(0)
+    #         ax.plot(x_axis, trace)
+    #
+    #     ax.set_xlabel('Sample points', fontsize=20)
+    #     ax.set_ylabel('Voltage', fontsize=20)
+    #     for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+    #         label.set_fontsize(15)
+    #     plt.savefig(image_root + 'Orig_traces_' + dataset + "_" + leakage + "_ascadf.png")
 
     fig, ax = plt.subplots(figsize=(15, 7))
     used_traces = 5000
