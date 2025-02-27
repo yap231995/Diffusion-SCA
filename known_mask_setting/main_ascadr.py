@@ -66,7 +66,7 @@ if torch.cuda.is_available():
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
+print("device: ", device)
 
 path_dataset = latent_space_root + "latent_dataset" + "/"
 latent_X_profiling=np.load(path_dataset + "X_latent_profiling.npy")
