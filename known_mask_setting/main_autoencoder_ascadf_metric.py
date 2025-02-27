@@ -46,7 +46,6 @@ if torch.cuda.is_available():
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
-print("hello")
 print("device: ", device)
 dataloadertrain = Custom_Dataset(root=root, dataset=dataset, leakage=leakage,
                                  transform=transforms.Compose([ToTensor_trace()]))
