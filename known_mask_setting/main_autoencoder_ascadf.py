@@ -132,35 +132,35 @@ for r_xp in range(rep):
     reconstructed_traces2 = reconstructed_traces.squeeze(1)
     traces1 = dataloadertrain.X[:used_d, :]
     traces2 = reconstructed_traces2[:used_d, :]
-    print("traces1:", torch.from_numpy(traces1).float().shape)
+    print("traces1:", torch.from_numpy(traces1).float().squeeze(1).shape)
     print("traces2:", traces2.shape)
     mse_loss_fn = nn.MSELoss()
     if traces1.shape[-1] == traces2.shape[-1]:
         mse = mse_loss_fn(torch.from_numpy(traces1).float(), traces2)
         print("mse:", mse)
         print(ok)
-    # if r_xp == 0:
-    #     fig, ax = plt.subplots(figsize=(15, 7))
-    #     real_traces = np.zeros((used_traces, dataloadertrain.X_profiling.shape[1]))
-    #     for i, trace in enumerate(dataloadertrain.X[:used_traces, :]):
-    #         real_traces[i, :] = trace.squeeze(0)
-    #     print("computing correlation of the original traces:")
-    #     for k in tqdm(range(256)):
-    #         label_k = aes_label_cpa_ascad(dataloadertrain.plt_profiling[:used_traces], k, leakage)
-    #         cpa_k = cpa_method(total_samplept, total_num_gen_trace, label_k, real_traces)
-    #
-    #         if dataloadertrain.correct_key == k:
-    #             continue
-    #         else:
-    #             ax.plot(x_axis, cpa_k, c="grey")
-    #
-    #     label_correct_key = aes_label_cpa_ascad(dataloadertrain.plt_profiling[:used_traces],
-    #                                             dataloadertrain.correct_key, leakage)
-    #     cpa_k = cpa_method(total_samplept, total_num_gen_trace, label_correct_key, real_traces)
-    #
-    #     x_axis = [i for i in range(total_samplept)]
-    #     ax.plot(x_axis, cpa_k, c="red")
-    #     plt.savefig(image_root + 'Actual_corr_' + dataset + "_" + leakage + "_ascadf.png")
+    if r_xp == 0:
+        fig, ax = plt.subplots(figsize=(15, 7))
+        real_traces = np.zeros((used_traces, dataloadertrain.X_profiling.shape[1]))
+        for i, trace in enumerate(dataloadertrain.X[:used_traces, :]):
+            real_traces[i, :] = trace.squeeze(0)
+        print("computing correlation of the original traces:")
+        for k in tqdm(range(256)):
+            label_k = aes_label_cpa_ascad(dataloadertrain.plt_profiling[:used_traces], k, leakage)
+            cpa_k = cpa_method(total_samplept, total_num_gen_trace, label_k, real_traces)
+
+            if dataloadertrain.correct_key == k:
+                continue
+            else:
+                ax.plot(x_axis, cpa_k, c="grey")
+
+        label_correct_key = aes_label_cpa_ascad(dataloadertrain.plt_profiling[:used_traces],
+                                                dataloadertrain.correct_key, leakage)
+        cpa_k = cpa_method(total_samplept, total_num_gen_trace, label_correct_key, real_traces)
+
+        x_axis = [i for i in range(total_samplept)]
+        ax.plot(x_axis, cpa_k, c="red")
+        plt.savefig(image_root + 'Actual_corr_' + dataset + "_" + leakage + "_ascadf.png")
 
     fig, ax = plt.subplots(figsize=(15, 7))
     print("computing correlation of the reconstruction traces:")
