@@ -128,6 +128,7 @@ for r_xp in range(rep):
     cpa_val = np.zeros(256)
 
     #code here first
+    used_d = int(np.min([used_traces, 5000]))
     reconstructed_traces2 = reconstructed_traces.squeeze(1)
     traces1 = dataloadertrain.X[:used_d, :]
     traces2 = reconstructed_traces2[:used_d, :]
