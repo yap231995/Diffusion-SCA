@@ -64,7 +64,7 @@ best_loss = float("inf")
 import time
 
 for r_xp in range(rep):
-
+    print("Number of Autoencoder trained: {}/{}".format(r_xp, rep))
     # parameter to check
     dim_len_entr = random.randrange(2, 6 + 1)
     batch_entr = random.randrange(64, 2048 + 1, 32)
