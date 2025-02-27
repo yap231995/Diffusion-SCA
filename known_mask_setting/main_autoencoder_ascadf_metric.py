@@ -17,7 +17,7 @@ from torch import nn
 
 dataset = "ASCAD"
 leakage = "ID"
-metric = "correlation"
+metric = "mse"
 train_ae_bool = True
 cal_ae_cpa = True
 print_ae_traces = True
@@ -208,6 +208,7 @@ for r_xp in range(rep):
         print("Dimension original and reconstructed traces:")
         print([traces1.shape, traces2.shape])
         if metric == "correlation":
+            print("computing metric: Correlation")
             if traces1.shape[-1] == traces2.shape[-1]:
                 crr = np.zeros(used_d)
                 for ii in range(used_d):
@@ -285,6 +286,7 @@ for r_xp in range(rep):
                     print("average correlation original and reconstructed traces: ")
                     print(np.mean(crr))
         elif metric == "mse":
+            print("computing metric: MSE")
             mse_loss_fn = nn.MSELoss()
             if traces1.shape[-1] == traces2.shape[-1]:
                 traces1 = torch.from_numpy(traces1).float().squeeze(1)
