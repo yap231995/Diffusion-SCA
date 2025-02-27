@@ -137,12 +137,12 @@ for r_xp in range(rep):
     if traces1.shape[-1] == traces2.shape[-1]:
         trace1 = torch.from_numpy(traces1).float().squeeze(1)
         mse = mse_loss_fn(trace1, traces2)
-        mse2 = mse_loss_fn(torch.from_numpy(traces1).float(), traces2)
         print("traces1:", trace1.shape)
         print("traces2:", traces2.shape)
+        from sklearn.metrics import mean_squared_error
+
         print("mse:", mse)
-        print("mse2:", mse2)
-        p
+        print("sklearn_mse:", mean_squared_error(traces1, traces2))
         print(ok)
     if r_xp == 0:
         fig, ax = plt.subplots(figsize=(15, 7))
